@@ -3,17 +3,14 @@ services:
     image: nginx:1.25-alpine
     restart: unless-stopped
     ports:
-      - "${MIDDLEWARE_PORT:-8012}:80"   # ZKTeco device reaches this directly
+      - "${MIDDLEWARE_PORT:-8012}:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
       - ./src:/var/www/html:ro
     depends_on:
       - php
     networks:
-      web:
-        aliases:
-          - zkteco-nginx    # Caddy uses this name to proxy attendance.cclser.com
-      internal: {}
+      - internal
 
   php:
     build: ./php
@@ -55,8 +52,5 @@ volumes:
   db_data:
 
 networks:
-  web:
-    external: true
-    name: livekit-server_web          # deployed at /opt/livekit-server on the server
   internal:
-    driver: bridge                   # private: only php + db
+    driver: bridge
