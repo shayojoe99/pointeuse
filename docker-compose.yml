@@ -21,10 +21,10 @@ services:
     volumes:
       - ./src:/var/www/html:ro
     environment:
-      DB_HOST: ${DB_HOST:-db}
-      DB_NAME: ${DB_NAME:-zkteco}
-      DB_USER: ${DB_USER:-zkteco}
-      DB_PASS: ${DB_PASS:-zkteco_pass}
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
     networks:
       - internal
       - dokploy-network
