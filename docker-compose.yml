@@ -10,7 +10,10 @@ services:
     depends_on:
       - php
     networks:
-      - internal
+      web:
+        aliases:
+          - zkteco-nginx
+      internal: {}
 
   php:
     build: ./php
@@ -52,5 +55,8 @@ volumes:
   db_data:
 
 networks:
+  web:
+    external: true
+    name: cclser-platform_web
   internal:
     driver: bridge
