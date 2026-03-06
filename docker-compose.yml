@@ -21,10 +21,10 @@ services:
     volumes:
       - ./src:/var/www/html:ro
     environment:
-      DB_HOST: ${DB_HOST}
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS}
+      DB_HOST: database-pointeuse-z1yen8
+      DB_NAME: zkteco
+      DB_USER: zkteco
+      DB_PASS: ShayoJoe@1999
     networks:
       - internal
       - dokploy-network
