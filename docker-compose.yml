@@ -21,38 +21,13 @@ services:
     volumes:
       - ./src:/var/www/html:ro
     environment:
-      DB_HOST: db
+      DB_HOST: ${DB_HOST:-db}
       DB_NAME: ${DB_NAME:-zkteco}
       DB_USER: ${DB_USER:-zkteco}
       DB_PASS: ${DB_PASS:-zkteco_pass}
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - internal
-
-  db:
-    image: mysql:8.0
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-change_this_root_pass}
-      MYSQL_DATABASE: ${DB_NAME:-zkteco}
-      MYSQL_USER: ${DB_USER:-zkteco}
-      MYSQL_PASSWORD: ${DB_PASS:-zkteco_pass}
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASS:-change_this_root_pass}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    networks:
-      - internal
-
-volumes:
-  db_data:
+      - dokploy-network
 
 networks:
   web:
@@ -60,3 +35,5 @@ networks:
     name: cclser-platform_web
   internal:
     driver: bridge
+  dokploy-network:
+    external: true
