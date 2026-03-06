@@ -3,12 +3,23 @@ services:
     image: nginx:1.25-alpine
     restart: unless-stopped
     ports:
-      - "${MIDDLEWARE_PORT:-8012}:80"
+      - "${MIDDLEWARE_PORT:-8012}:80"   # kept for ZKTeco device (LAN access)
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
       - ./src:/var/www/html:ro
     depends_on:
       - php
+    networks:
+      - dokploy-network
+      - internal
+    labels:
+      - "traefik.enable=true"
+      # Route attendance.cclser.com → this container
+      - "traefik.http.routers.pointeuse.rule=Host(`attendance.cclser.com`)"
+      - "traefik.http.routers.pointeuse.entrypoints=websecure"
+      - "traefik.http.routers.pointeuse.tls.certresolver=letsencrypt"
+      - "traefik.http.services.pointeuse.loadbalancer.server.port=80"
+      - "traefik.docker.network=dokploy-network"
 
   php:
     build: ./php
@@ -23,6 +34,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - internal
 
   db:
     image: mysql:8.0
@@ -41,6 +54,14 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+    networks:
+      - internal
 
 volumes:
   db_data:
+
+networks:
+  dokploy-network:
+    external: true   # Dokploy's Traefik network — already exists on the server
+  internal:
+    driver: bridge   # private network for php ↔ db (not exposed to Traefik)
