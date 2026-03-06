@@ -57,6 +57,6 @@ volumes:
 networks:
   web:
     external: true
-    name: cclser-platform-main_web   # the existing Caddy network
+    name: livekit-server_web          # deployed at /opt/livekit-server on the server
   internal:
     driver: bridge                   # private: only php + db
