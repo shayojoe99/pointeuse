@@ -3,23 +3,17 @@ services:
     image: nginx:1.25-alpine
     restart: unless-stopped
     ports:
-      - "${MIDDLEWARE_PORT:-8012}:80"   # kept for ZKTeco device (LAN access)
+      - "${MIDDLEWARE_PORT:-8012}:80"   # ZKTeco device reaches this directly
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
       - ./src:/var/www/html:ro
     depends_on:
       - php
     networks:
-      - dokploy-network
-      - internal
-    labels:
-      - "traefik.enable=true"
-      # Route attendance.cclser.com → this container
-      - "traefik.http.routers.pointeuse.rule=Host(`attendance.cclser.com`)"
-      - "traefik.http.routers.pointeuse.entrypoints=websecure"
-      - "traefik.http.routers.pointeuse.tls.certresolver=letsencrypt"
-      - "traefik.http.services.pointeuse.loadbalancer.server.port=80"
-      - "traefik.docker.network=dokploy-network"
+      web:
+        aliases:
+          - zkteco-nginx    # Caddy uses this name to proxy attendance.cclser.com
+      internal: {}
 
   php:
     build: ./php
@@ -61,7 +55,8 @@ volumes:
   db_data:
 
 networks:
-  dokploy-network:
-    external: true   # Dokploy's Traefik network — already exists on the server
+  web:
+    external: true
+    name: cclser-platform-main_web   # the existing Caddy network
   internal:
-    driver: bridge   # private network for php ↔ db (not exposed to Traefik)
+    driver: bridge                   # private: only php + db
