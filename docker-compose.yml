@@ -37,3 +37,4 @@ networks:
     driver: bridge
   dokploy-network:
     external: true
+    name: dokploy-network
